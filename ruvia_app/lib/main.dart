@@ -350,16 +350,154 @@ class PassengerAccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F0E5),
       appBar: AppBar(
-        title: const Text('RUVIA'),
-      ),
-      body: const Center(
-        child: Text(
-          'Bienvenido a RUVIA',
+        backgroundColor: const Color(0xFFF6F0E5),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xFF315C45),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          'RUVIA',
           style: TextStyle(
-            fontSize: 24,
+            color: Color(0xFF315C45),
             fontWeight: FontWeight.bold,
           ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 35),
+
+            const Icon(
+              Icons.person_pin_circle_rounded,
+              size: 80,
+              color: Color(0xFFC56A3D),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'Bienvenido a RUVIA',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 29,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF315C45),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            const Text(
+              'Inicia sesión para solicitar tu viaje.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF6B5A47),
+              ),
+            ),
+
+            const SizedBox(height: 40),
+
+            TextField(
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: 'Número de teléfono',
+                prefixIcon: const Icon(Icons.phone),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 18),
+
+            TextField(
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                prefixIcon: const Icon(Icons.lock_outline),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 28),
+
+            SizedBox(
+              height: 55,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF315C45),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Text(
+                  'CONTINUAR',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextButton(
+              onPressed: () {},
+              child: const Text(
+                'Crear una cuenta nueva',
+                style: TextStyle(
+                  color: Color(0xFFC56A3D),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+
+            const Spacer(),
+
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.shield_rounded,
+                  size: 18,
+                  color: Color(0xFF315C45),
+                ),
+                SizedBox(width: 7),
+                Text(
+                  'Tu información está protegida',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B5A47),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+          ],
         ),
       ),
     );
