@@ -103,7 +103,14 @@ class RuviaWelcome extends StatelessWidget {
                   width: double.infinity,
                   height: 58,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const UserTypeScreen(),
+    ),
+  );
+},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF315C45),
                       foregroundColor: Colors.white,
@@ -145,6 +152,186 @@ class RuviaWelcome extends StatelessWidget {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}class UserTypeScreen extends StatelessWidget {
+  const UserTypeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F0E5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF6F0E5),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xFF315C45),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          'RUVIA',
+          style: TextStyle(
+            color: Color(0xFF315C45),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 35),
+
+            const Text(
+              '¿Qué quieres hacer?',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF315C45),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            const Text(
+              'Elige una opción para continuar',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Color(0xFF6B5A47),
+              ),
+            ),
+
+            const SizedBox(height: 50),
+
+            // OPCIÓN PASAJERO
+            SizedBox(
+              height: 120,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF315C45),
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.person_pin_circle_rounded,
+                      size: 55,
+                      color: Color(0xFFC56A3D),
+                    ),
+                    SizedBox(width: 20),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Quiero viajar',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          'Solicitar un viaje',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF6B5A47),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 22),
+
+            // OPCIÓN CONDUCTOR
+            SizedBox(
+              height: 120,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF315C45),
+                  foregroundColor: Colors.white,
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.drive_eta_rounded,
+                      size: 55,
+                      color: Colors.white,
+                    ),
+                    SizedBox(width: 20),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Soy conductor',
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 5),
+                        Text(
+                          'Ofrecer viajes',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const Spacer(),
+
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.shield_rounded,
+                  size: 18,
+                  color: Color(0xFF315C45),
+                ),
+                SizedBox(width: 7),
+                Text(
+                  'Viajes seguros para nuestra comunidad',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B5A47),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 15),
+          ],
         ),
       ),
     );
