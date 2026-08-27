@@ -217,7 +217,14 @@ class RuviaWelcome extends StatelessWidget {
             SizedBox(
               height: 120,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const PassengerAccessScreen(),
+    ),
+  );
+},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: const Color(0xFF315C45),
@@ -332,6 +339,27 @@ class RuviaWelcome extends StatelessWidget {
 
             const SizedBox(height: 15),
           ],
+        ),
+      ),
+    );
+  }
+}
+class PassengerAccessScreen extends StatelessWidget {
+  const PassengerAccessScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('RUVIA'),
+      ),
+      body: const Center(
+        child: Text(
+          'Bienvenido a RUVIA',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
