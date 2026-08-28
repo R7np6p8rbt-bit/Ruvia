@@ -717,12 +717,12 @@ onPressed: () {
     );
     return;
   }
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('¡Cuenta creada correctamente!'),
-    ),
-  );
+Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => const PassengerHomeScreen(),
+  ),
+);
 },                style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF315C45),
                   foregroundColor: Colors.white,
@@ -759,6 +759,91 @@ onPressed: () {
                   ),
                 ),
               ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+class PassengerHomeScreen extends StatelessWidget {
+  const PassengerHomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F0E5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF6F0E5),
+        elevation: 0,
+        title: const Text(
+          'RUVIA',
+          style: TextStyle(
+            color: Color(0xFF315C45),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 20),
+            const Text(
+              '¿A dónde quieres ir?',
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF315C45),
+              ),
+            ),
+            const SizedBox(height: 25),
+            TextField(
+              decoration: InputDecoration(
+                labelText: 'Punto de partida',
+                prefixIcon: const Icon(Icons.my_location),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              decoration: InputDecoration(
+                labelText: '¿A dónde quieres ir?',
+                prefixIcon: const Icon(Icons.location_on_outlined),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+            const SizedBox(height: 25),
+            SizedBox(
+              height: 55,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF315C45),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Text(
+                  'SOLICITAR VIAJE',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ],
         ),
