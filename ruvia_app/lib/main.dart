@@ -273,7 +273,14 @@ class RuviaWelcome extends StatelessWidget {
             SizedBox(
               height: 120,
               child: ElevatedButton(
-                onPressed: () {},
+onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const DriverHomeScreen(),
+    ),
+  );
+},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF315C45),
                   foregroundColor: Colors.white,
