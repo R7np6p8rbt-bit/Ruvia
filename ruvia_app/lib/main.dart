@@ -415,7 +415,7 @@ class PassengerAccessScreen extends StatelessWidget {
                 labelText: 'Número de teléfono',
                 prefixIcon: const Icon(Icons.phone),
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Colors.white, 
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(16),
                   borderSide: BorderSide.none,
@@ -918,6 +918,120 @@ class SearchingDriverScreen extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+class DriverHomeScreen extends StatelessWidget {
+  const DriverHomeScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F0E5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF6F0E5),
+        elevation: 0,
+        title: const Text(
+          'RUVIA CONDUCTOR',
+          style: TextStyle(
+            color: Color(0xFF315C45),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const SizedBox(height: 25),
+
+            const Icon(
+              Icons.directions_car,
+              size: 80,
+              color: Color(0xFF315C45),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'Modo conductor',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF315C45),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            const Text(
+              'Estás listo para recibir solicitudes de viaje.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.black54,
+              ),
+            ),
+
+            const SizedBox(height: 35),
+
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.circle,
+                    color: Colors.green,
+                    size: 18,
+                  ),
+                  SizedBox(width: 12),
+                  Text(
+                    'Conductor conectado',
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              'Solicitudes de viaje',
+              style: TextStyle(
+                fontSize: 21,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF315C45),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Text(
+                'No hay viajes disponibles por ahora.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
