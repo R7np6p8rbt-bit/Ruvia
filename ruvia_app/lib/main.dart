@@ -828,11 +828,12 @@ class PassengerHomeScreen extends StatelessWidget {
               height: 55,
               child: ElevatedButton(
               onPressed: () {
-  ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text('Buscando un conductor cercano...'),
-    ),
-  );
+                Navigator.push(
+  context,
+  MaterialPageRoute(
+    builder: (context) => const SearchingDriverScreen(),
+  ),
+);
 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF315C45),
@@ -851,6 +852,72 @@ class PassengerHomeScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+class SearchingDriverScreen extends StatelessWidget {
+  const SearchingDriverScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F0E5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF6F0E5),
+        elevation: 0,
+        title: const Text(
+          'RUVIA',
+          style: TextStyle(
+            color: Color(0xFF315C45),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.directions_car,
+                size: 80,
+                color: Color(0xFF315C45),
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                'Buscando conductor',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF315C45),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Estamos buscando un conductor cercano para tu viaje.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 35),
+              const CircularProgressIndicator(
+                color: Color(0xFF315C45),
+              ),
+              const SizedBox(height: 35),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('CANCELAR VIAJE'),
+              ),
+            ],
+          ),
         ),
       ),
     );
