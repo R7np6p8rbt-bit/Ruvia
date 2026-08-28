@@ -812,8 +812,7 @@ class PassengerHomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
+            TextField(              decoration: InputDecoration(
                 labelText: '¿A dónde quieres ir?',
                 prefixIcon: const Icon(Icons.location_on_outlined),
                 filled: true,
@@ -828,7 +827,13 @@ class PassengerHomeScreen extends StatelessWidget {
             SizedBox(
               height: 55,
               child: ElevatedButton(
-                onPressed: () {},
+              onPressed: () {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Buscando un conductor cercano...'),
+    ),
+  );
+},
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF315C45),
                   foregroundColor: Colors.white,
