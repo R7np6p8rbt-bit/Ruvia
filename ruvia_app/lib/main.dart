@@ -686,8 +686,44 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             SizedBox(
               height: 55,
               child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
+onPressed: () {
+  if (nameController.text.trim().isEmpty ||
+      phoneController.text.trim().isEmpty ||
+      emailController.text.trim().isEmpty ||
+      passwordController.text.isEmpty ||
+      confirmPasswordController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Por favor completa todos los campos.'),
+      ),
+    );
+    return;
+  }
+
+  if (passwordController.text != confirmPasswordController.text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Las contraseñas no coinciden.'),
+      ),
+    );
+    return;
+  }
+
+  if (!acceptTerms) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Debes aceptar los términos y condiciones.'),
+      ),
+    );
+    return;
+  }
+
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('¡Cuenta creada correctamente!'),
+    ),
+  );
+},                style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF315C45),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
