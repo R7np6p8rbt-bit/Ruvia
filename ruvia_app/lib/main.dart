@@ -1061,7 +1061,13 @@ child: Column(
     SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () {},
+onPressed: () {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text('Viaje aceptado'),
+    ),
+  );
+},
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF315C45),
           foregroundColor: Colors.white,
