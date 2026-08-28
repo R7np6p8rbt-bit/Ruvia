@@ -1030,13 +1030,47 @@ class DriverHomeScreen extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Text(
-                'No hay viajes disponibles por ahora.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.black54,
-                ),
-              ),
+child: Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: [
+    const Text(
+      'Solicitud de viaje',
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: Color(0xFF315C45),
+      ),
+    ),
+    const SizedBox(height: 10),
+    const Text(
+      'Pasajero: Leonardo',
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.black87,
+      ),
+    ),
+    const SizedBox(height: 6),
+    const Text(
+      'Destino: Centro',
+      style: TextStyle(
+        fontSize: 16,
+        color: Colors.black87,
+      ),
+    ),
+    const SizedBox(height: 16),
+    SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF315C45),
+          foregroundColor: Colors.white,
+        ),
+        child: const Text('ACEPTAR VIAJE'),
+      ),
+    ),
+  ],
+),              
             ),
           ],
         ),
