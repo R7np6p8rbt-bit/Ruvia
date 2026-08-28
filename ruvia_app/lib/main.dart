@@ -465,7 +465,14 @@ class PassengerAccessScreen extends StatelessWidget {
             const SizedBox(height: 15),
 
             TextButton(
-              onPressed: () {},
+       onPressed: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const CreateAccountScreen(),
+    ),
+  );
+},    
               child: const Text(
                 'Crear una cuenta nueva',
                 style: TextStyle(
@@ -498,6 +505,27 @@ class PassengerAccessScreen extends StatelessWidget {
 
             const SizedBox(height: 15),
           ],
+        ),
+      ),
+    );
+  }
+}
+class CreateAccountScreen extends StatelessWidget {
+  const CreateAccountScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Crear cuenta'),
+      ),
+      body: const Center(
+        child: Text(
+          'Crear una cuenta nueva',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
