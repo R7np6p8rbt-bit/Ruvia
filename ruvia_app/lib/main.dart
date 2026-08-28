@@ -510,22 +510,221 @@ class PassengerAccessScreen extends StatelessWidget {
     );
   }
 }
-class CreateAccountScreen extends StatelessWidget {
+class CreateAccountScreen extends StatefulWidget {
   const CreateAccountScreen({super.key});
+
+  @override
+  State<CreateAccountScreen> createState() => _CreateAccountScreenState();
+}
+
+class _CreateAccountScreenState extends State<CreateAccountScreen> {
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
+  bool acceptTerms = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF6F0E5),
       appBar: AppBar(
-        title: const Text('Crear cuenta'),
-      ),
-      body: const Center(
-        child: Text(
-          'Crear una cuenta nueva',
+        backgroundColor: const Color(0xFFF6F0E5),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xFF315C45),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text(
+          'Crear cuenta',
           style: TextStyle(
-            fontSize: 24,
+            color: Color(0xFF315C45),
             fontWeight: FontWeight.bold,
           ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(25),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Text(
+              'Crea tu cuenta RUVIA',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF315C45),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            const Text(
+              'Completa tus datos para comenzar a viajar.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Color(0xFF6B5A47),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            TextField(
+              controller: nameController,
+              decoration: InputDecoration(
+                labelText: 'Nombre completo',
+                prefixIcon: const Icon(Icons.person_outline),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            TextField(
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: 'Número de teléfono',
+                prefixIcon: const Icon(Icons.phone),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            TextField(
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                labelText: 'Correo electrónico',
+                prefixIcon: const Icon(Icons.email_outlined),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            TextField(
+              controller: passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Contraseña',
+                prefixIcon: const Icon(Icons.lock_outline),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            TextField(
+              controller: confirmPasswordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Confirmar contraseña',
+                prefixIcon: const Icon(Icons.lock_outline),
+                filled: true,
+                fillColor: Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            CheckboxListTile(
+              value: acceptTerms,
+              onChanged: (value) {
+                setState(() {
+                  acceptTerms = value ?? false;
+                });
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+              contentPadding: EdgeInsets.zero,
+              title: const Text(
+                'Acepto los términos y condiciones',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Color(0xFF6B5A47),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            SizedBox(
+              height: 55,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF315C45),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
+                child: const Text(
+                  'CREAR CUENTA',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 25),
+
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.shield_rounded,
+                  size: 18,
+                  color: Color(0xFF315C45),
+                ),
+                SizedBox(width: 7),
+                Text(
+                  'Tus datos están protegidos',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B5A47),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
