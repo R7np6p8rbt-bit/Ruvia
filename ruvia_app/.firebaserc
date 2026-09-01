@@ -1,1 +1,5 @@
-ruvia-2523e
+{
+  "projects": {
+    "default": "ruvia-2523e"
+  }
+}

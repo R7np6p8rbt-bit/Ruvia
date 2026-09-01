@@ -1,0 +1,84 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{userId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+                    && request.auth.uid == userId;
+
+      allow update: if request.auth != null
+                    && request.auth.uid == userId;
+    }
+
+    match /ride_requests/{rideId} {
+
+      // Cualquier usuario autenticado puede crear una solicitud
+      // únicamente a su propio nombre.
+      allow create: if request.auth != null
+                    && request.resource.data.passengerId == request.auth.uid;
+
+      // El pasajero puede leer sus propios viajes.
+      // Un conductor puede leer solicitudes disponibles (searching)
+      // y también los viajes que ya tiene asignados.
+      allow read: if request.auth != null
+                  && (
+                    resource.data.passengerId == request.auth.uid
+                    || resource.data.driverId == request.auth.uid
+                    || resource.data.status == 'searching'
+                  );
+
+      // El conductor puede aceptar una solicitud que todavía está
+      // buscando conductor.
+      allow update: if request.auth != null
+                    && resource.data.status == 'searching'
+                    && request.resource.data.status == 'accepted'
+                    && request.resource.data.driverId == request.auth.uid
+
+                    // El pasajero original no puede cambiarse.
+                    && request.resource.data.passengerId
+                       == resource.data.passengerId;
+
+      // El conductor asignado puede iniciar el viaje.
+      allow update: if request.auth != null
+                    && resource.data.status == 'accepted'
+                    && resource.data.driverId == request.auth.uid
+                    && request.resource.data.status == 'started'
+
+                    // El conductor asignado no puede cambiarse.
+                    && request.resource.data.driverId
+                       == resource.data.driverId;
+
+      // El conductor asignado puede actualizar su ubicación
+      // mientras el viaje está en curso.
+      allow update: if request.auth != null
+                    && resource.data.status == 'started'
+                    && resource.data.driverId == request.auth.uid
+                    && request.resource.data.status == 'started'
+                    && request.resource.data.driverId
+                       == resource.data.driverId;
+
+      // El conductor asignado puede finalizar el viaje.
+      allow update: if request.auth != null
+                    && resource.data.status == 'started'
+                    && resource.data.driverId == request.auth.uid
+                    && request.resource.data.status == 'completed'
+                    && request.resource.data.driverId
+                       == resource.data.driverId;
+
+      // El pasajero puede guardar su calificación después
+      // de que el viaje haya terminado.
+      allow update: if request.auth != null
+                    && resource.data.status == 'completed'
+                    && resource.data.passengerId == request.auth.uid
+                    && request.resource.data.status == 'completed'
+                    && request.resource.data.passengerId
+                       == resource.data.passengerId
+                    && request.resource.data.passengerRating is int
+                    && request.resource.data.passengerRating >= 1
+                    && request.resource.data.passengerRating <= 5;
+    }
+  }
+}
