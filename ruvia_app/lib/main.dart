@@ -1662,7 +1662,7 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen> {
 
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.pop(context);
+                        Navigator.of(context).popUntil((route) => route.isFirst);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF315C45),
