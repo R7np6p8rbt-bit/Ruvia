@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'firebase_options.dart';
 import 'route_calculator.dart';
+import 'address_formatter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -871,6 +872,7 @@ class PassengerHomeScreen extends StatefulWidget {
 }
 
 class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
+
   Future<void> _getCurrentLocation() async {
     try {
       final position = await Geolocator.getCurrentPosition(
@@ -1502,13 +1504,25 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen> {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 10),
-                          Text(
-                            'Origen: ${data?['pickup'] ?? 'Sin origen'}',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.black87,
+                          FutureBuilder<String>(
+                            future: formatRuviaAddress(
+                              data?['pickup']?.toString() ?? '',
                             ),
-                            textAlign: TextAlign.center,
+                            builder: (context, snapshot) {
+                              final displayedPickup =
+                                  snapshot.data ??
+                                  data?['pickup']?.toString() ??
+                                  'Sin origen';
+
+                              return Text(
+                                'Origen: $displayedPickup',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black87,
+                                ),
+                                textAlign: TextAlign.center,
+                              );
+                            },
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -2603,12 +2617,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
 
                             const SizedBox(height: 7),
 
-                            Text(
-                              'Origen: $pickup',
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colors.black87,
-                              ),
+                            FutureBuilder<String>(
+                              future: formatRuviaAddress(pickup.toString()),
+                              builder: (context, snapshot) {
+                                final displayedPickup =
+                                    snapshot.data ?? pickup.toString();
+
+                                return Text(
+                                  'Origen: $displayedPickup',
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.black87,
+                                  ),
+                                );
+                              },
                             ),
 
                             const SizedBox(height: 7),
