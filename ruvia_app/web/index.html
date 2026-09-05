@@ -1,46 +1,118 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="description" content="RUVIA">
 
-  <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="ruvia_app">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <meta name="apple-mobile-web-app-title" content="RUVIA">
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>ruvia_app</title>
+  <title>RUVIA</title>
   <link rel="manifest" href="manifest.json">
-</head>
-<body>
-  <!--
-    You can customize the "flutter_bootstrap.js" script.
-    This is useful to provide a custom configuration to the Flutter loader
-    or to give the user feedback during the initialization process.
 
-    For more details:
-    * https://docs.flutter.dev/platform-integration/web/initialization
-  -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDgBhGHsLlEQ5RO9jezi6_ugeWJ30DZ3N0&libraries=places"></script>
+
+  <script>
+    window.calculateRuviaRoute = async function(originLat, originLng, destination) {
+      try {
+        if (!window.google || !google.maps) {
+          throw new Error("Google Maps todavía no está cargado.");
+        }
+
+        const { Route } = await google.maps.importLibrary("routes");
+
+        const request = {
+          origin: {
+            lat: Number(originLat),
+            lng: Number(originLng)
+          },
+          destination: destination,
+          travelMode: "DRIVING",
+          fields: ["distanceMeters", "durationMillis", "path"]
+        };
+
+        const result = await Route.computeRoutes(request);
+
+        if (!result.routes || result.routes.length === 0) {
+          throw new Error("No se encontró una ruta.");
+        }
+
+        const route = result.routes[0];
+
+        const path = [];
+
+        if (route.path) {
+          route.path.forEach(function(point) {
+            const lat =
+              typeof point.lat === "function"
+                ? point.lat()
+                : point.lat;
+
+            const lng =
+              typeof point.lng === "function"
+                ? point.lng()
+                : point.lng;
+
+            if (typeof lat === "number" && typeof lng === "number") {
+              path.push({
+                lat: lat,
+                lng: lng
+              });
+            }
+          });
+        }
+
+        console.log("RUVIA - puntos de ruta:", path.length);
+
+        return JSON.stringify({
+          distanceMeters: route.distanceMeters,
+          durationMillis: route.durationMillis,
+          path: path
+        });
+
+      } catch (error) {
+        console.error("RUVIA Route error:", error);
+        throw error;
+      }
+    };
+
+    window.getRuviaAddress = async function(lat, lng) {
+      try {
+        if (!window.google || !google.maps) {
+          throw new Error("Google Maps todavía no está cargado.");
+        }
+
+        const geocoder = new google.maps.Geocoder();
+
+        const response = await geocoder.geocode({
+          location: {
+            lat: Number(lat),
+            lng: Number(lng)
+          }
+        });
+
+        if (!response.results || response.results.length === 0) {
+          return "";
+        }
+
+        return response.results[0].formatted_address || "";
+
+      } catch (error) {
+        console.error("RUVIA Geocoding error:", error);
+        return "";
+      }
+    };
+  </script>
+</head>
+
+<body>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
