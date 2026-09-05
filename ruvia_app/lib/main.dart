@@ -410,12 +410,17 @@ class _DriverAccessScreenState extends State<DriverAccessScreen> {
         return;
       }
 
+      final vehicle = data?['vehicle'];
+
       if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const DriverHomeScreen(),
+          builder: (context) =>
+              vehicle is Map && vehicle.isNotEmpty
+                  ? const DriverHomeScreen()
+                  : const DriverVehicleScreen(),
         ),
       );
     } on FirebaseAuthException catch (e) {
@@ -978,6 +983,348 @@ class _DriverRegisterScreenState extends State<DriverRegisterScreen> {
                   SizedBox(width: 7),
                   Text(
                     'Tu información está protegida',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF6B5A47),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 15),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class DriverVehicleScreen extends StatefulWidget {
+  const DriverVehicleScreen({super.key});
+
+  @override
+  State<DriverVehicleScreen> createState() => _DriverVehicleScreenState();
+}
+
+class _DriverVehicleScreenState extends State<DriverVehicleScreen> {
+  final brandController = TextEditingController();
+  final modelController = TextEditingController();
+  final yearController = TextEditingController();
+  final colorController = TextEditingController();
+  final plateController = TextEditingController();
+
+  bool loading = false;
+
+  @override
+  void dispose() {
+    brandController.dispose();
+    modelController.dispose();
+    yearController.dispose();
+    colorController.dispose();
+    plateController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _saveVehicle() async {
+    final driver = FirebaseAuth.instance.currentUser;
+
+    if (driver == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Sesión de conductor no activa.'),
+        ),
+      );
+      return;
+    }
+
+    final brand = brandController.text.trim();
+    final model = modelController.text.trim();
+    final year = yearController.text.trim();
+    final color = colorController.text.trim();
+    final plate = plateController.text.trim().toUpperCase();
+
+    if (brand.isEmpty ||
+        model.isEmpty ||
+        year.isEmpty ||
+        color.isEmpty ||
+        plate.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Completa todos los datos del vehículo.'),
+        ),
+      );
+      return;
+    }
+
+    final yearNumber = int.tryParse(year);
+
+    if (yearNumber == null || yearNumber < 1950 || yearNumber > 2035) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ingresa un año de vehículo válido.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(driver.uid)
+          .update({
+        'vehicle': {
+          'brand': brand,
+          'model': model,
+          'year': yearNumber,
+          'color': color,
+          'plate': plate,
+        },
+        'vehicleRegisteredAt': FieldValue.serverTimestamp(),
+      });
+
+      if (!mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const DriverHomeScreen(),
+        ),
+        (route) => false,
+      );
+    } on FirebaseException catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.code == 'permission-denied'
+                ? 'No tienes permiso para guardar el vehículo.'
+                : 'No se pudo guardar el vehículo.',
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Ocurrió un error. Intenta nuevamente.'),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          loading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F0E5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF6F0E5),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Color(0xFF315C45),
+          ),
+          onPressed: loading ? null : () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'RUVIA',
+          style: TextStyle(
+            color: Color(0xFF315C45),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          keyboardDismissBehavior:
+              ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 10),
+
+              const Icon(
+                Icons.directions_car_filled_rounded,
+                size: 75,
+                color: Color(0xFF315C45),
+              ),
+
+              const SizedBox(height: 18),
+
+              const Text(
+                'Registra tu vehículo',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF315C45),
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              const Text(
+                'Necesitamos estos datos para identificar tu vehículo en RUVIA.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFF6B5A47),
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              TextField(
+                controller: brandController,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  labelText: 'Marca',
+                  hintText: 'Ej. Nissan',
+                  prefixIcon: const Icon(Icons.directions_car_outlined),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: modelController,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  labelText: 'Modelo',
+                  hintText: 'Ej. Versa',
+                  prefixIcon: const Icon(Icons.car_repair_outlined),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: yearController,
+                keyboardType: TextInputType.number,
+                maxLength: 4,
+                decoration: InputDecoration(
+                  labelText: 'Año',
+                  hintText: 'Ej. 2020',
+                  counterText: '',
+                  prefixIcon: const Icon(Icons.calendar_today_outlined),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: colorController,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  labelText: 'Color',
+                  hintText: 'Ej. Blanco',
+                  prefixIcon: const Icon(Icons.palette_outlined),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: plateController,
+                textCapitalization: TextCapitalization.characters,
+                decoration: InputDecoration(
+                  labelText: 'Placas',
+                  hintText: 'Ej. ABC-123-D',
+                  prefixIcon: const Icon(Icons.pin_outlined),
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              SizedBox(
+                height: 55,
+                child: ElevatedButton(
+                  onPressed: loading ? null : _saveVehicle,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF315C45),
+                    foregroundColor: Colors.white,
+                    disabledBackgroundColor: const Color(0xFF9AA99F),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                  child: loading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'GUARDAR VEHÍCULO',
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.shield_rounded,
+                    size: 18,
+                    color: Color(0xFF315C45),
+                  ),
+                  SizedBox(width: 7),
+                  Text(
+                    'Tus datos están protegidos',
                     style: TextStyle(
                       fontSize: 13,
                       color: Color(0xFF6B5A47),
