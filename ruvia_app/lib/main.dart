@@ -2066,6 +2066,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
             'passengerName': userData?['name'] ?? '',
             'passengerPhone': userData?['phone'] ?? '',
             'pickup': pickup,
+            'originLat': originLat,
+            'originLng': originLng,
             'destination': destination,
             'distanceKm': double.parse(distanceKm.toStringAsFixed(2)),
             'fare': calculatedFare,
@@ -3375,6 +3377,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   StreamSubscription<Position>? _locationSubscription;
   bool _available = false;
   bool _availabilityLoading = false;
+  double? _driverLatitude;
+  double? _driverLongitude;
 
   Future<void> _setAvailability(bool value) async {
     final driver = FirebaseAuth.instance.currentUser;
@@ -3493,6 +3497,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
           distanceFilter: 10,
         ),
       ).listen((position) async {
+        if (mounted) {
+          setState(() {
+            _driverLatitude = position.latitude;
+            _driverLongitude = position.longitude;
+          });
+        }
+
         try {
           await FirebaseFirestore.instance
               .collection('users')
@@ -3563,6 +3574,28 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   void dispose() {
     _stopDriverLocation();
     super.dispose();
+  }
+
+  double _calculateRideDistance(
+    double driverLat,
+    double driverLng,
+    Map<String, dynamic> rideData,
+  ) {
+    final originLat = (rideData['originLat'] as num?)?.toDouble();
+    final originLng = (rideData['originLng'] as num?)?.toDouble();
+
+    if (originLat == null || originLng == null) {
+      return double.infinity;
+    }
+
+    final distanceMeters = Geolocator.distanceBetween(
+      driverLat,
+      driverLng,
+      originLat,
+      originLng,
+    );
+
+    return distanceMeters / 1000;
   }
 
   @override
@@ -3746,7 +3779,22 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                     final driverId = data['driverId'];
 
                     if (status == 'searching') {
-                      return _available;
+                      if (!_available) {
+                        return false;
+                      }
+
+                      if (_driverLatitude == null ||
+                          _driverLongitude == null) {
+                        return false;
+                      }
+
+                      final distanceKm = _calculateRideDistance(
+                        _driverLatitude!,
+                        _driverLongitude!,
+                        data,
+                      );
+
+                      return distanceKm <= 15;
                     }
 
                     if (status == 'accepted' || status == 'started') {
@@ -3755,6 +3803,28 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
 
                     return false;
                   }).toList();
+
+                  if (_driverLatitude != null &&
+                      _driverLongitude != null) {
+                    requests.sort((a, b) {
+                      final dataA = a.data() as Map<String, dynamic>;
+                      final dataB = b.data() as Map<String, dynamic>;
+
+                      final distanceA = _calculateRideDistance(
+                        _driverLatitude!,
+                        _driverLongitude!,
+                        dataA,
+                      );
+
+                      final distanceB = _calculateRideDistance(
+                        _driverLatitude!,
+                        _driverLongitude!,
+                        dataB,
+                      );
+
+                      return distanceA.compareTo(distanceB);
+                    });
+                  }
 
                   if (requests.isEmpty) {
                     return const Center(
@@ -3863,7 +3933,34 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                               ),
                             ),
 
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 7),
+
+                            if (_driverLatitude != null &&
+                                _driverLongitude != null) ...[
+                              Builder(
+                                builder: (context) {
+                                  final rideDistanceKm =
+                                      _calculateRideDistance(
+                                    _driverLatitude!,
+                                    _driverLongitude!,
+                                    data,
+                                  );
+
+                                  if (rideDistanceKm == double.infinity) {
+                                    return const SizedBox.shrink();
+                                  }
+
+                                  return Text(
+                                    '📍 A ${rideDistanceKm.toStringAsFixed(1)} km de ti',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.black54,
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                            ],
 
                             Text(
                               'Tarifa del viaje: \$$fare MXN',
