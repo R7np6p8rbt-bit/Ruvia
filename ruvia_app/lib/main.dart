@@ -3373,6 +3373,145 @@ class DriverHomeScreen extends StatefulWidget {
 
 class _DriverHomeScreenState extends State<DriverHomeScreen> {
   StreamSubscription<Position>? _locationSubscription;
+  bool _available = false;
+  bool _availabilityLoading = false;
+
+  Future<void> _setAvailability(bool value) async {
+    final driver = FirebaseAuth.instance.currentUser;
+
+    if (driver == null) {
+      return;
+    }
+
+    setState(() {
+      _availabilityLoading = true;
+    });
+
+    try {
+      if (value) {
+        await _startAvailableLocation();
+
+        if (!mounted) return;
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(driver.uid)
+            .update({
+          'available': true,
+          'availabilityUpdatedAt': FieldValue.serverTimestamp(),
+        });
+
+        setState(() {
+          _available = true;
+        });
+      } else {
+        await _locationSubscription?.cancel();
+        _locationSubscription = null;
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(driver.uid)
+            .update({
+          'available': false,
+          'availabilityUpdatedAt': FieldValue.serverTimestamp(),
+        });
+
+        if (!mounted) return;
+
+        setState(() {
+          _available = false;
+        });
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'No se pudo actualizar tu disponibilidad.',
+          ),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _availabilityLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _startAvailableLocation() async {
+    final driver = FirebaseAuth.instance.currentUser;
+
+    if (driver == null) {
+      return;
+    }
+
+    try {
+      final serviceEnabled =
+          await Geolocator.isLocationServiceEnabled();
+
+      if (!serviceEnabled) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Activa la ubicación de tu teléfono para estar disponible.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      var permission = await Geolocator.checkPermission();
+
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+
+      if (permission == LocationPermission.denied ||
+          permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'RUVIA necesita permiso de ubicación para estar disponible.',
+              ),
+            ),
+          );
+        }
+        return;
+      }
+
+      await _locationSubscription?.cancel();
+
+      _locationSubscription = Geolocator.getPositionStream(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          distanceFilter: 10,
+        ),
+      ).listen((position) async {
+        try {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(driver.uid)
+              .update({
+            'available': true,
+            'latitude': position.latitude,
+            'longitude': position.longitude,
+            'locationUpdatedAt': FieldValue.serverTimestamp(),
+          });
+        } catch (e) {
+          debugPrint('RUVIA - error guardando ubicación disponible: $e');
+        }
+      });
+    } catch (e) {
+      debugPrint('RUVIA - error iniciando GPS disponible: $e');
+    }
+  }
+
   Future<void> _startDriverLocation(String rideId) async {
     try {
       final serviceEnabled =
@@ -3485,6 +3624,90 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
 
             const SizedBox(height: 25),
 
+            Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: _available
+                    ? const Color(0xFFE4F2E8)
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: _available
+                      ? const Color(0xFF315C45)
+                      : const Color(0xFFD8CFC2),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        _available
+                            ? Icons.check_circle_rounded
+                            : Icons.pause_circle_outline_rounded,
+                        color: _available
+                            ? const Color(0xFF315C45)
+                            : const Color(0xFFC56A3D),
+                        size: 28,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        _available
+                            ? 'ESTÁS DISPONIBLE'
+                            : 'NO ESTÁS DISPONIBLE',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: _available
+                              ? const Color(0xFF315C45)
+                              : const Color(0xFFC56A3D),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: _availabilityLoading
+                          ? null
+                          : () => _setAvailability(!_available),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _available
+                            ? const Color(0xFFC56A3D)
+                            : const Color(0xFF315C45),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: _availabilityLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(
+                              _available
+                                  ? 'DESACTIVAR DISPONIBILIDAD'
+                                  : 'ESTAR DISPONIBLE',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
@@ -3523,7 +3746,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                     final driverId = data['driverId'];
 
                     if (status == 'searching') {
-                      return true;
+                      return _available;
                     }
 
                     if (status == 'accepted' || status == 'started') {
