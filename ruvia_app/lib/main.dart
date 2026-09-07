@@ -4162,18 +4162,41 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
 
                                       final driverData = driverDoc.data();
 
-                                      await FirebaseFirestore.instance
+                                      final rideRef = FirebaseFirestore.instance
                                           .collection('ride_requests')
-                                          .doc(doc.id)
-                                          .update({
-                                            'status': 'accepted',
-                                            'driverId': driver.uid,
-                                            'driverName':
-                                                driverData?['name'] ??
-                                                'Conductor',
-                                            'driverPhone':
-                                                driverData?['phone'] ?? '',
-                                          });
+                                          .doc(doc.id);
+
+                                      await FirebaseFirestore.instance
+                                          .runTransaction((transaction) async {
+                                        final rideSnapshot =
+                                            await transaction.get(rideRef);
+
+                                        if (!rideSnapshot.exists) {
+                                          throw Exception(
+                                            'El viaje ya no existe.',
+                                          );
+                                        }
+
+                                        final rideData =
+                                            rideSnapshot.data()
+                                                as Map<String, dynamic>;
+
+                                        if (rideData['status'] != 'searching') {
+                                          throw Exception(
+                                            'Este viaje ya fue aceptado por otro conductor.',
+                                          );
+                                        }
+
+                                        transaction.update(rideRef, {
+                                          'status': 'accepted',
+                                          'driverId': driver.uid,
+                                          'driverName':
+                                              driverData?['name'] ??
+                                              'Conductor',
+                                          'driverPhone':
+                                              driverData?['phone'] ?? '',
+                                        });
+                                      });
                                     } else if (status == 'accepted') {
                                       await FirebaseFirestore.instance
                                           .collection('ride_requests')
