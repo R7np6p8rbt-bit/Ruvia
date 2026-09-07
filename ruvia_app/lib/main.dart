@@ -3063,6 +3063,42 @@ class _DriverTrackingScreenState extends State<DriverTrackingScreen> {
   List<LatLng> _routePoints = [];
   bool _routeLoading = false;
   String? _lastRouteDestination;
+  GoogleMapController? _trackingMapController;
+  double? _lastDriverLatitude;
+  double? _lastDriverLongitude;
+
+  void _onTrackingMapCreated(GoogleMapController controller) {
+    _trackingMapController = controller;
+  }
+
+  Future<void> _followDriver(double latitude, double longitude) async {
+    final locationChanged =
+        _lastDriverLatitude != latitude ||
+        _lastDriverLongitude != longitude;
+
+    _lastDriverLatitude = latitude;
+    _lastDriverLongitude = longitude;
+
+    if (!locationChanged) {
+      return;
+    }
+
+    final controller = _trackingMapController;
+
+    if (controller == null) {
+      return;
+    }
+
+    try {
+      await controller.animateCamera(
+        CameraUpdate.newLatLng(
+          LatLng(latitude, longitude),
+        ),
+      );
+    } catch (e) {
+      debugPrint('RUVIA - error siguiendo conductor en mapa: $e');
+    }
+  }
 
   Future<void> _loadDriverRoute(
     double driverLat,
@@ -3170,6 +3206,14 @@ class _DriverTrackingScreenState extends State<DriverTrackingScreen> {
             data?['destination']?.toString() ?? '';
 
         if (driverLat != null &&
+            driverLng != null) {
+          _followDriver(
+            driverLat,
+            driverLng,
+          );
+        }
+
+        if (driverLat != null &&
             driverLng != null &&
             destination.isNotEmpty) {
           _loadDriverRoute(
@@ -3197,6 +3241,7 @@ class _DriverTrackingScreenState extends State<DriverTrackingScreen> {
               Expanded(
                 child: driverLat != null && driverLng != null
                     ? GoogleMap(
+                        onMapCreated: _onTrackingMapCreated,
                         initialCameraPosition: CameraPosition(
                           target: LatLng(driverLat, driverLng),
                           zoom: 15,
