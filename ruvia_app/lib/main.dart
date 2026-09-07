@@ -2405,7 +2405,7 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen> {
       stream: FirebaseFirestore.instance
           .collection('ride_requests')
           .doc(widget.rideId)
-          .snapshots(),
+          .snapshots(includeMetadataChanges: true),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Scaffold(
@@ -2436,6 +2436,8 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen> {
         }
 
         final data = snapshot.data!.data() as Map<String, dynamic>?;
+
+        final isFromCache = snapshot.data!.metadata.isFromCache;
 
         final status = data?['status'] ?? 'searching';
 
@@ -2759,7 +2761,43 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen> {
                     ),
                   ),
 
-                  const SizedBox(height: 20),
+                  if (isFromCache)
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 15),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF3CD),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: const Color(0xFFE0B84C),
+                        ),
+                      ),
+                      child: const Row(
+                        children: [
+                          Text(
+                            '📡',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Conexión perdida — intentando reconectar',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF6B5500),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  const SizedBox(height: 5),
 
                   Container(
                     height: 320,
