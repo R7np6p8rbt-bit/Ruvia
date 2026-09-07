@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
 import 'route_calculator.dart';
@@ -1874,6 +1875,58 @@ class PassengerHomeScreen extends StatefulWidget {
 
 class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
 
+  @override
+  void initState() {
+    super.initState();
+    _loadPendingRideId();
+  }
+
+  Future<void> _loadPendingRideId() async {
+    final savedRideId = await _getPendingRideId();
+
+    if (!mounted || savedRideId == null || savedRideId.isEmpty) {
+      return;
+    }
+
+    _pendingRideId = savedRideId;
+
+    try {
+      final rideDoc = await FirebaseFirestore.instance
+          .collection('ride_requests')
+          .doc(savedRideId)
+          .get();
+
+      if (!mounted) return;
+
+      if (!rideDoc.exists) {
+        await _clearPendingRideId();
+        _pendingRideId = null;
+        return;
+      }
+
+      final data = rideDoc.data();
+      final status = data?['status'];
+
+      if (status == 'searching' ||
+          status == 'accepted' ||
+          status == 'started') {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                SearchingDriverScreen(rideId: savedRideId),
+          ),
+        );
+        return;
+      }
+
+      await _clearPendingRideId();
+      _pendingRideId = null;
+    } catch (e) {
+      // Si no hay conexión, conservamos el ID para intentarlo de nuevo.
+    }
+  }
+
   Future<void> _getCurrentLocation() async {
     try {
       final position = await Geolocator.getCurrentPosition(
@@ -1991,6 +2044,21 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
     }
   }
 
+  Future<void> _savePendingRideId(String rideId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pending_ride_id', rideId);
+  }
+
+  Future<String?> _getPendingRideId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('pending_ride_id');
+  }
+
+  Future<void> _clearPendingRideId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('pending_ride_id');
+  }
+
   Future<void> _requestRide() async {
     final pickup = pickupController.text.trim();
     final destination = destinationController.text.trim();
@@ -2068,6 +2136,8 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
           .collection('ride_requests')
           .doc()
           .id;
+
+      await _savePendingRideId(_pendingRideId!);
 
       final rideDoc = FirebaseFirestore.instance
           .collection('ride_requests')
@@ -2691,8 +2761,15 @@ class _SearchingDriverScreenState extends State<SearchingDriverScreen> {
                     ],
 
                     ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).popUntil((route) => route.isFirst);
+                      onPressed: () async {
+                        final navigator = Navigator.of(context);
+
+                        final prefs = await SharedPreferences.getInstance();
+                        await prefs.remove('pending_ride_id');
+
+                        if (!mounted) return;
+
+                        navigator.popUntil((route) => route.isFirst);
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF315C45),
