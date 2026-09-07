@@ -1911,6 +1911,7 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
   final destinationController = TextEditingController();
 
   bool isRequesting = false;
+  String? _pendingRideId;
   GoogleMapController? mapController;
   Position? currentPosition;
   bool isCalculatingFare = false;
@@ -2063,28 +2064,38 @@ class _PassengerHomeScreenState extends State<PassengerHomeScreen> {
 
       final userData = userDoc.data();
 
-      final rideDoc = await FirebaseFirestore.instance
+      _pendingRideId ??= FirebaseFirestore.instance
           .collection('ride_requests')
-          .add({
-            'passengerId': user.uid,
-            'passengerName': userData?['name'] ?? '',
-            'passengerPhone': userData?['phone'] ?? '',
-            'pickup': pickup,
-            'originLat': originLat,
-            'originLng': originLng,
-            'destination': destination,
-            'distanceKm': double.parse(distanceKm.toStringAsFixed(2)),
-            'fare': calculatedFare,
-            'status': 'searching',
-            'createdAt': FieldValue.serverTimestamp(),
-          });
+          .doc()
+          .id;
+
+      final rideDoc = FirebaseFirestore.instance
+          .collection('ride_requests')
+          .doc(_pendingRideId!);
+
+      await rideDoc.set({
+        'passengerId': user.uid,
+        'passengerName': userData?['name'] ?? '',
+        'passengerPhone': userData?['phone'] ?? '',
+        'pickup': pickup,
+        'originLat': originLat,
+        'originLng': originLng,
+        'destination': destination,
+        'distanceKm': double.parse(distanceKm.toStringAsFixed(2)),
+        'fare': calculatedFare,
+        'status': 'searching',
+        'createdAt': FieldValue.serverTimestamp(),
+      });
 
       if (!mounted) return;
+
+      final createdRideId = rideDoc.id;
+      _pendingRideId = null;
 
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SearchingDriverScreen(rideId: rideDoc.id),
+          builder: (context) => SearchingDriverScreen(rideId: createdRideId),
         ),
       );
     } on FirebaseException catch (e) {
