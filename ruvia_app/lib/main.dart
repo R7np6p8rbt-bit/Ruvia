@@ -3290,6 +3290,11 @@ class _DriverTrackingScreenState extends State<DriverTrackingScreen> {
     }
   }
 
+  Future<void> _clearDriverRideId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('driver_ride_id');
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
@@ -3486,6 +3491,8 @@ class _DriverTrackingScreenState extends State<DriverTrackingScreen> {
                               });
 
                               await widget.onRideFinished?.call();
+
+                              await _clearDriverRideId();
 
                               if (!context.mounted) return;
 
@@ -4298,6 +4305,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                                           .update({'status': 'completed'});
 
                                       await _stopDriverLocation();
+                                      await _clearDriverRideId();
                                     }
 
                                     if (!context.mounted) return;
