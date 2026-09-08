@@ -3549,6 +3549,13 @@ class DriverHomeScreen extends StatefulWidget {
 }
 
 class _DriverHomeScreenState extends State<DriverHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _loadDriverRideId();
+  }
+
+
   StreamSubscription<Position>? _locationSubscription;
   bool _available = false;
 
@@ -3570,6 +3577,44 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
   bool _availabilityLoading = false;
   double? _driverLatitude;
   double? _driverLongitude;
+
+  Future<void> _loadDriverRideId() async {
+    final savedRideId = await _getDriverRideId();
+
+    if (mounted == false || savedRideId == null || savedRideId.isEmpty) {
+      return;
+    }
+
+    try {
+      final rideDoc = await FirebaseFirestore.instance
+          .collection('ride_requests')
+          .doc(savedRideId)
+          .get();
+
+      if (mounted == false) return;
+
+      if (rideDoc.exists == false) {
+        await _clearDriverRideId();
+        return;
+      }
+
+      final data = rideDoc.data();
+      final status = data?['status'];
+
+      if (status == 'accepted') {
+        return;
+      }
+
+      if (status == 'started') {
+        await _startDriverLocation(savedRideId);
+        return;
+      }
+
+      await _clearDriverRideId();
+    } catch (e) {
+      // Si no hay conexión, conservamos el ID para intentarlo de nuevo.
+    }
+  }
 
   Future<void> _setAvailability(bool value) async {
     final driver = FirebaseAuth.instance.currentUser;
