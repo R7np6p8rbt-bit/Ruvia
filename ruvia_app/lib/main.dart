@@ -3551,6 +3551,22 @@ class DriverHomeScreen extends StatefulWidget {
 class _DriverHomeScreenState extends State<DriverHomeScreen> {
   StreamSubscription<Position>? _locationSubscription;
   bool _available = false;
+
+  Future<void> _saveDriverRideId(String rideId) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('driver_ride_id', rideId);
+  }
+
+  Future<String?> _getDriverRideId() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('driver_ride_id');
+  }
+
+  Future<void> _clearDriverRideId() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('driver_ride_id');
+  }
+
   bool _availabilityLoading = false;
   double? _driverLatitude;
   double? _driverLongitude;
@@ -4197,6 +4213,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
                                               driverData?['phone'] ?? '',
                                         });
                                       });
+                                      await _saveDriverRideId(doc.id);
                                     } else if (status == 'accepted') {
                                       await FirebaseFirestore.instance
                                           .collection('ride_requests')
