@@ -3607,6 +3607,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen> {
 
       if (status == 'started') {
         await _startDriverLocation(savedRideId);
+
+        if (mounted == false) return;
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DriverTrackingScreen(
+              rideId: savedRideId,
+              onRideFinished: _stopDriverLocation,
+            ),
+          ),
+        );
         return;
       }
 
