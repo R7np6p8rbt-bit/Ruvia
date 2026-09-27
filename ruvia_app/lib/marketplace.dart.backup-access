@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'marketplace_register.dart';
 
 class MarketplaceScreen extends StatelessWidget {
   const MarketplaceScreen({super.key});
@@ -402,11 +401,11 @@ class MarketplaceAccessScreen extends StatelessWidget {
               height: 55,
               child: OutlinedButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          const MarketplaceRegisterScreen(),
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'El registro estará disponible próximamente.',
+                      ),
                     ),
                   );
                 },
